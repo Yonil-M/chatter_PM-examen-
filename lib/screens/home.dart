@@ -5,6 +5,7 @@ import 'package:chatter/pages/messages_page.dart';
 import 'package:chatter/pages/notification_page.dart';
 import 'package:chatter/temas.dart';
 import 'package:chatter/widget/avatar.dart';
+import 'package:chatter/widget/glowing_action_buttom.dart';
 import 'package:chatter/widget/widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: Theme.of(context).iconTheme,
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: ValueListenableBuilder(
@@ -105,47 +107,67 @@ class _BottomNavigatorBarState extends State<_BottomNavigatorBar> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      bottom: true,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children:[
-        _NavigationBarItem(
-          index: 0,
-          lable: 'Mensajes',
-          icon: CupertinoIcons.bubble_left_bubble_right_fill,
-          isSelected: (selectedIndex==0),
-          onTap: handleItemSelected,
-        ),
+    final brightness=Theme.of(context).brightness;
+    return Card(
+      color: (brightness==Brightness.light)? Colors.transparent:null,
+      elevation: 0,
+      margin:const EdgeInsets.all(0),
+      child: SafeArea(
+        top: false,
+        bottom: true,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 16.0,left: 8.0,right: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children:[
+            _NavigationBarItem(
+              index: 0,
+              lable: 'Mensajes',
+              icon: CupertinoIcons.bubble_left_bubble_right_fill,
+              isSelected: (selectedIndex==0),
+              onTap: handleItemSelected,
+            ),
+    
+            _NavigationBarItem(
+              index: 1,
+              lable: 'Notificaciones',
+              icon: CupertinoIcons.bell_solid,
+              isSelected: (selectedIndex==1),
+               onTap:handleItemSelected,
+            ),
 
-        _NavigationBarItem(
-          index: 1,
-          lable: 'Notificaciones',
-          icon: CupertinoIcons.bell_solid,
-          isSelected: (selectedIndex==1),
-           onTap:handleItemSelected,
-        ),
-
-        _NavigationBarItem(
-          index: 2,
-          lable: 'Llamadas',
-          icon: CupertinoIcons.phone_fill,
-          isSelected: (selectedIndex==2),
-           onTap: handleItemSelected,
-        ),
-
-        _NavigationBarItem(
-          index: 3,
-          lable: 'Contactos',
-          icon: CupertinoIcons.person_2_fill,
-          isSelected: (selectedIndex==3),
-           onTap: handleItemSelected,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: GlowingActionButton(
+                color: AppColors.secondary, 
+                icon: CupertinoIcons.add, 
+                onPressed: () {
+                  print("TODO on new message");
+                },
+                ),
+            ),
+    
+            _NavigationBarItem(
+              index: 2,
+              lable: 'Llamadas',
+              icon: CupertinoIcons.phone_fill,
+              isSelected: (selectedIndex==2),
+               onTap: handleItemSelected,
+            ),
+    
+            _NavigationBarItem(
+              index: 3,
+              lable: 'Contactos',
+              icon: CupertinoIcons.person_2_fill,
+              isSelected: (selectedIndex==3),
+               onTap: handleItemSelected,
+            ),
+            
+          ],),
         ),
         
-      ],),
-      
-      );
+        ),
+    );
   }
 }
 
@@ -174,7 +196,7 @@ class _NavigationBarItem extends StatelessWidget {
       },
       child: SizedBox(
        
-        height: 70.0,
+        width: 70.0,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
