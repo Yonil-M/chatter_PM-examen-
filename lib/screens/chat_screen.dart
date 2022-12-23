@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:chatter/app.dart';
 import 'package:chatter/helpers.dart';
+import 'package:chatter/widget/display_error_message.dart';
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:chatter/temas.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,7 +13,7 @@ import '../widget/avatar.dart';
 import '../widget/glowing_action_buttom.dart';
 import '../widget/icons_buttons.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   static Route routeWithChannel(Channel channel) => MaterialPageRoute(
         builder: (context) => StreamChannel(
           channel: channel,
@@ -20,11 +23,39 @@ class ChatScreen extends StatelessWidget {
 
   const ChatScreen({
     Key? key,
-    
   }) : super(key: key);
 
-  //final Channel channel;
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
 
+class _ChatScreenState extends State<ChatScreen> {
+  late StreamSubscription<int> unreadCountSubscription;
+
+  @override
+  void initState(){
+    super.initState();
+
+    unreadCountSubscription=StreamChannel.of(context)
+    .channel
+    .state!
+    .unreadCountStream
+    .listen(_unreadCountHandler);
+  }
+
+  Future<void>_unreadCountHandler(int count)async{
+    if(count >0){
+      await StreamChannel.of(context).channel.markRead();
+    }
+  }
+  @override
+  void dispose(){
+    unreadCountSubscription.cancel();
+    super.dispose();
+  }
+
+
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,52 +97,76 @@ class ChatScreen extends StatelessWidget {
         ],
       ),
       body: Column(
-        children: const [
+        children: [
           Expanded(
-            child: _DemoMessageList(),
-          ),
-          _ActionBar(),
+              child: MessageListCore(
+                loadingBuilder: (context) {
+                  return const Center(child: CircularProgressIndicator());
+                },
+                emptyBuilder: (context) => const SizedBox.shrink(),
+                errorBuilder: (context, error) =>
+                    DisplayErrorMessage(error: error),
+                messageListBuilder: (context, messages) =>
+                    _MessageList(messages: messages),
+              ),
+            ),
+          const _ActionBar(),
         ],
       ),
     );
   }
 }
 
-class _DemoMessageList extends StatelessWidget {
-  const _DemoMessageList({Key? key}) : super(key: key);
+class _MessageList extends StatelessWidget {
+  const _MessageList({
+    Key? key,
+    required this.messages,
+  }) : super(key: key);
+
+  final List<Message> messages;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: ListView(
-        children: const [
-          _DateLable(lable: 'Yesterday'),
-          _MessageTile(
-            message: 'Hi, Lucy! How\'s your day going?',
-            messageDate: '12:01 PM',
-          ),
-          _MessageOwnTile(
-            message: 'You know how it goes...',
-            messageDate: '12:02 PM',
-          ),
-          _MessageTile(
-            message: 'Do you want Starbucks?',
-            messageDate: '12:02 PM',
-          ),
-          _MessageOwnTile(
-            message: 'Would be awesome!',
-            messageDate: '12:03 PM',
-          ),
-          _MessageTile(
-            message: 'Coming up!',
-            messageDate: '12:03 PM',
-          ),
-          _MessageOwnTile(
-            message: 'YAY!!!',
-            messageDate: '12:03 PM',
-          ),
-        ],
+      padding: const EdgeInsets.all(8.0),
+      child: ListView.separated(
+        itemCount: messages.length + 1,
+        reverse: true,
+        separatorBuilder: (context, index) {
+          if (index == messages.length - 1) {
+            return _DateLable(dateTime: messages[index].createdAt);
+          }
+          if (messages.length == 1) {
+            return const SizedBox.shrink();
+          } else if (index >= messages.length - 1) {
+            return const SizedBox.shrink();
+          } else if (index <= messages.length) {
+            final message = messages[index];
+            final nextMessage = messages[index + 1];
+            if (!Jiffy(message.createdAt.toLocal())
+                .isSame(nextMessage.createdAt.toLocal(), Units.DAY)) {
+              return _DateLable(
+                dateTime: message.createdAt,
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+        itemBuilder: (context, index) {
+          if (index < messages.length) {
+            final message = messages[index];
+            if (message.user?.id == context.currentUser?.id) {
+              return _MessageOwnTile(message: message);
+            } else {
+              return _MessageTile(message: message);
+            }
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
       ),
     );
   }
@@ -121,11 +176,9 @@ class _MessageTile extends StatelessWidget {
   const _MessageTile({
     Key? key,
     required this.message,
-    required this.messageDate,
   }) : super(key: key);
 
-  final String message;
-  final String messageDate;
+  final Message message;
 
   static const _borderRadius = 26.0;
 
@@ -151,13 +204,13 @@ class _MessageTile extends StatelessWidget {
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12.0, vertical: 20),
-                child: Text(message),
+                child: Text(message.text??''),
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
-                messageDate,
+                Jiffy(message.createdAt.toLocal()).jm,
                 style: const TextStyle(
                   color: AppColors.textFaded,
                   fontSize: 10,
@@ -176,11 +229,9 @@ class _MessageOwnTile extends StatelessWidget {
   const _MessageOwnTile({
     Key? key,
     required this.message,
-    required this.messageDate,
   }) : super(key: key);
 
-  final String message;
-  final String messageDate;
+  final Message message;
 
   static const _borderRadius = 26.0;
 
@@ -206,7 +257,7 @@ class _MessageOwnTile extends StatelessWidget {
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12.0, vertical: 20),
-                child: Text(message,
+                child: Text(message.text?? '',
                     style: const TextStyle(
                       color: AppColors.textLigth,
                     )),
@@ -215,7 +266,7 @@ class _MessageOwnTile extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
-                messageDate,
+                Jiffy(message.createdAt.toLocal()).jm,
                 style: const TextStyle(
                   color: AppColors.textFaded,
                   fontSize: 10,
@@ -230,13 +281,47 @@ class _MessageOwnTile extends StatelessWidget {
   }
 }
 
-class _DateLable extends StatelessWidget {
+class _DateLable extends StatefulWidget {
   const _DateLable({
     Key? key,
-    required this.lable,
+    required this.dateTime,
   }) : super(key: key);
 
-  final String lable;
+  final DateTime dateTime;
+
+  @override
+  State<_DateLable> createState() => _DateLableState();
+}
+
+class _DateLableState extends State<_DateLable> {
+  late String dayInfo;
+
+  @override
+  void initState() {
+    final createdAt = Jiffy(widget.dateTime);
+    final now = DateTime.now();
+
+    if (Jiffy(createdAt).isSame(now, Units.DAY)) {
+      dayInfo = 'Hoy';
+    } else if (Jiffy(createdAt)
+        .isSame(now.subtract(const Duration(days: 1)), Units.DAY)) {
+      dayInfo = 'En dia de ayer';
+    } else if (Jiffy(createdAt).isAfter(
+      now.subtract(const Duration(days: 7)),
+      Units.DAY,
+    )) {
+      dayInfo = createdAt.EEEE;
+    } else if (Jiffy(createdAt).isAfter(
+      Jiffy(now).subtract(years: 1),
+      Units.DAY,
+    )) {
+      dayInfo = createdAt.MMMd;
+    } else {
+      dayInfo = createdAt.MMMd;
+    }
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +336,7 @@ class _DateLable extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12),
             child: Text(
-              lable,
+              dayInfo,
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -492,8 +577,31 @@ class ConnectionStatusBuilder extends StatelessWidget {
 
 
 
-class _ActionBar extends StatelessWidget {
+class _ActionBar extends StatefulWidget {
   const _ActionBar({Key? key}) : super(key: key);
+
+  @override
+  __ActionBarState createState() => __ActionBarState();
+}
+
+class __ActionBarState extends State<_ActionBar> {
+  final TextEditingController controller = TextEditingController();
+
+  Future<void> _sendMessage() async {
+    if (controller.text.isNotEmpty) {
+      StreamChannel.of(context)
+          .channel
+          .sendMessage(Message(text: controller.text));
+      controller.clear();
+      FocusScope.of(context).unfocus();
+    }
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -518,15 +626,20 @@ class _ActionBar extends StatelessWidget {
               ),
             ),
           ),
-          const Expanded(
+          Expanded(
             child: Padding(
-              padding: EdgeInsets.only(left: 16.0),
+              padding: const EdgeInsets.only(left: 16.0),
               child: TextField(
-                style: TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Escribir mensaje...',
+                controller: controller,
+                onChanged: (val) {
+                  StreamChannel.of(context).channel.keyStroke();
+                },
+                style: const TextStyle(fontSize: 14),
+                decoration: const InputDecoration(
+                  hintText: 'Escribe algo...',
                   border: InputBorder.none,
                 ),
+                onSubmitted: (_) => _sendMessage(),
               ),
             ),
           ),
@@ -538,9 +651,7 @@ class _ActionBar extends StatelessWidget {
             child: GlowingActionButton(
               color: AppColors.accent,
               icon: Icons.send_rounded,
-              onPressed: () {
-                print('TODO: send a message');
-              },
+              onPressed: _sendMessage,
             ),
           ),
         ],

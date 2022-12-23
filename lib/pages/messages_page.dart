@@ -4,6 +4,7 @@ import 'package:chatter/models/messages_data.dart';
 import 'package:chatter/screens/screens.dart';
 import 'package:chatter/temas.dart';
 import 'package:chatter/widget/display_error_message.dart';
+import 'package:chatter/widget/unread_indicator.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
@@ -146,23 +147,11 @@ class _MessagesTitle extends StatelessWidget {
                           const SizedBox(
                             height: 8,
                           ),
-                          Container(
-                            width: 18,
-                            height: 18,
-                            decoration: const BoxDecoration(
-                              color: AppColors.secondary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '1',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: AppColors.textLigth,
-                                ),
-                              ),
-                            ),
-                          )
+
+                          Center(child: UnreadIndicator(
+                            channel: channel,
+                          ),)
+
                         ],
                       ),
                     ),
