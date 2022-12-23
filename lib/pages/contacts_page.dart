@@ -10,10 +10,8 @@ class ContactsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return UserListCore(
-      pagination: const PaginationParams(
+    return UserListCore(   
         limit: 20,
-      ),
       filter: Filter.notEqual('id', context.currentUser!.id),
       emptyBuilder: (context) {
         return const Center(child: Text('No hay usuarios'));
@@ -58,6 +56,7 @@ class _ContactTile extends StatelessWidget {
       ]
     });
     await channel.watch();
+    
     Navigator.of(context).push(
       ChatScreen.routeWithChannel(channel),
     );

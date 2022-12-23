@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 const users = [
+  userYonil,
   userGordon,
   userSalvatore,
   userSacha,
@@ -9,6 +10,12 @@ const users = [
   userReuben,
   userNash,
 ];
+const userYonil = DemoUser(
+  id: 'yonil',
+  name: 'Yonil Mejia',
+  image:
+      'https://images.pexels.com/photos/14535941/pexels-photo-14535941.jpeg',
+);
 
 const userGordon = DemoUser(
   id: 'gordon',

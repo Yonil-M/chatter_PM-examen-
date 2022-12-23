@@ -1,4 +1,3 @@
-import 'package:chatter/screens/home.dart';
 import 'package:chatter/screens/select_user_screen.dart';
 import 'package:chatter/temas.dart';
 import 'package:chatter/app.dart';
@@ -9,21 +8,25 @@ void main() {
   final client=StreamChatClient(StreamKey);
   runApp(MyApp(
     client: client,
+    appTheme: AppTheme(),
   ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key,
-  required this.client,
-  }):super(key: key) ;
+  const MyApp({
+    Key? key,
+    required this.client,
+    required this.appTheme,
+  }) : super(key: key);
 
   final StreamChatClient client;
+  final AppTheme appTheme;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      theme: appTheme.light,
+      darkTheme: appTheme.dark,
       themeMode: ThemeMode.dark,
       title: "Messenger",
       builder: (context, child) {
@@ -39,4 +42,4 @@ class MyApp extends StatelessWidget {
   }
 }
 
-//video 2: min 1.6.45 
+//video 3: min 55.00 

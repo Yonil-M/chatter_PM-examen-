@@ -27,7 +27,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(user?.name ?? 'No name'),
+              child: Text(user?.name ?? 'Sin nombre'),
             ),
             const Divider(),
             const _SignOutButton(),
