@@ -41,6 +41,8 @@ dependencies:
   faker: ^2.1.0
   meta: ^1.8.0
   jiffy: ^5.0.0
+  stream_chat_flutter_core: ^2.2.1
+  logger: ^1.1.0
 
 dev_dependencies:
   flutter_test:

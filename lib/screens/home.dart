@@ -1,10 +1,10 @@
-import 'package:chatter/helpers.dart';
 import 'package:chatter/pages/calls_page.dart';
 import 'package:chatter/pages/contacts_page.dart';
 import 'package:chatter/pages/messages_page.dart';
 import 'package:chatter/pages/notification_page.dart';
+import 'package:chatter/screens/screens.dart';
 import 'package:chatter/temas.dart';
-import 'package:chatter/widget/avatar.dart';
+import 'package:chatter/app.dart';
 import 'package:chatter/widget/glowing_action_buttom.dart';
 import 'package:chatter/widget/widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -65,7 +65,14 @@ class HomePage extends StatelessWidget {
 
         actions: [Padding(
           padding: const EdgeInsets.only(right:24.0),
-          child: Avatar.small(url: Helpers.randomPictureUrl()),
+          child: Hero(
+            tag: 'hero-profile-picture',
+            child: Avatar.small(url: context.currentUserImage,
+            onTap: () {
+              Navigator.of(context).push(ProfileScreen.route);
+            },
+            ),
+          ),
         )],
       ),
 
@@ -142,7 +149,15 @@ class _BottomNavigatorBarState extends State<_BottomNavigatorBar> {
                 color: AppColors.secondary, 
                 icon: CupertinoIcons.add, 
                 onPressed: () {
-                  print("TODO on new message");
+                  showDialog(
+                    context:context , 
+                    builder: (BuildContext context)=>const Dialog(
+                      child: AspectRatio(
+                        aspectRatio: 8/7,
+                        child: ContactsPage(),
+                        ),
+                    ),
+                    );
                 },
                 ),
             ),
