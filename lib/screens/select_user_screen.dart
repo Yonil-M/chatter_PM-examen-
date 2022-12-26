@@ -64,7 +64,7 @@ class _SelectUserScreenState extends State<SelectUserScreen> {
                     const Padding(
                       padding: EdgeInsets.all(32.0),
                       child: Text(
-                        'Select a user',
+                        'Seleccionar Usuario',
                         style: TextStyle(fontSize: 24, letterSpacing: 0.4),
                       ),
                     ),

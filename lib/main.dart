@@ -42,4 +42,5 @@ class MyApp extends StatelessWidget {
   }
 }
 
-//video 3: min 55.00 
+//video 3: min 14.00 
+//video 3: min 22.51

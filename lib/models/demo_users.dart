@@ -5,9 +5,9 @@ const users = [
   userGordon,
   userSalvatore,
   userSacha,
-  userDeven,
-  userSahil,
-  userReuben,
+  userDiego,
+  userTiago,
+  userRuben,
   userNash,
 ];
 const userYonil = DemoUser(
@@ -32,29 +32,29 @@ const userSalvatore = DemoUser(
 );
 
 const userSacha = DemoUser(
-  id: 'sacha',
-  name: 'Sacha Arbonel',
+  id: 'sasha',
+  name: 'Sasha Arbonel',
   image:
       'https://images.pexels.com/photos/9534338/pexels-photo-9534338.jpeg',
 );
 
-const userDeven = DemoUser(
-  id: 'deven',
-  name: 'Deven Joshi',
+const userDiego= DemoUser(
+  id: 'diego',
+  name: 'Diego Martin',
   image:
       'https://images.pexels.com/photos/8867242/pexels-photo-8867242.jpeg',
 );
 
-const userSahil = DemoUser(
-  id: 'sahil',
-  name: 'Sahil Kumar',
+const userTiago= DemoUser(
+  id: 'tiago',
+  name: 'Tiago Puma',
   image:
       'https://images.pexels.com/photos/8704612/pexels-photo-8704612.jpeg',
 );
 
-const userReuben = DemoUser(
-  id: 'reuben',
-  name: 'Reuben Turner',
+const userRuben = DemoUser(
+  id: 'ruben',
+  name: 'Ruben Turner',
   image:
       'https://pbs.twimg.com/profile_images/1370571324578480130/UxBBI30i_400x400.jpg',
 );
